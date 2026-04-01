@@ -2,12 +2,12 @@
 # VisionC Backend — Dockerfile for Railway
 # Python + OpenCV + FastAPI (WebSocket server)
 # ═══════════════════════════════════════════════
-FROM python:3.11-slim
+FROM python:3.11-slim-bookworm
 
-# System deps for OpenCV headless
+# Minimal system deps for opencv-python-headless
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-    libgl1-mesa-glx libglib2.0-0 libsm6 libxext6 libxrender-dev && \
+    libglib2.0-0 libsm6 libxext6 libxrender1 && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
