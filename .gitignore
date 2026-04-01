@@ -1,0 +1,30 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+
+# Node.js
+node_modules/
+.next/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test files
+test_*.jpg
+test_*.png
+
+# Models (downloaded at runtime)
+*.pt
+
+# Gemini
+.gemini/
+backend.log
+frontend.log
