@@ -26,11 +26,6 @@ COPY backend/ /app/backend/
 
 ENV PYTHONPATH=/app/backend:/app
 
-EXPOSE 8000
-
-CMD ["python", "-m", "uvicorn", "backend.main:app", \
-     "--host", "0.0.0.0", \
-     "--port", "8000", \
-     "--workers", "1", \
-     "--ws-max-size", "10485760", \
-     "--timeout-keep-alive", "120"]
+# Railway uses $PORT env var (dynamic), fall back to 8000
+# Must use shell form (not exec form) so $PORT gets expanded
+CMD python -m uvicorn backend.main:app --host 0.0.0.0 --port ${PORT:-8000} --workers 1 --ws-max-size 10485760 --timeout-keep-alive 120
