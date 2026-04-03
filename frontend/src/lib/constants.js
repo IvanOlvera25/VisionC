@@ -1,9 +1,15 @@
-// Auto-detect backend: env var for production, localhost for dev
-const BACKEND = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-const WS_PROTOCOL = BACKEND.startsWith("https") ? "wss" : "ws";
-const WS_HOST = BACKEND.replace(/^https?:\/\//, "");
+// Auto-detect backend URL from browser location
+// Dev: localhost:3000 → backend at localhost:8000
+// Production: same origin (FastAPI serves both API and static files)
+const isBrowser = typeof window !== "undefined";
+const loc = isBrowser ? window.location : { hostname: "localhost", protocol: "http:", port: "3000" };
 
-export const API_BASE = BACKEND;
+const isDev = loc.hostname === "localhost" && loc.port === "3000";
+const API_HOST = isDev ? "http://localhost:8000" : `${loc.protocol}//${loc.host}`;
+const WS_PROTOCOL = loc.protocol === "https:" ? "wss" : "ws";
+const WS_HOST = isDev ? "localhost:8000" : loc.host;
+
+export const API_BASE = API_HOST;
 export const WS_BASE = `${WS_PROTOCOL}://${WS_HOST}`;
 
 export const MODELS = [

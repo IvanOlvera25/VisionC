@@ -13,6 +13,8 @@ import cv2
 import numpy as np
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
 # Add parent dir so we can find model weights
@@ -222,9 +224,34 @@ async def ws_industrial(websocket: WebSocket):
         print(f"❌ Industrial WebSocket error: {e}")
 
 
+# ──────────────────────────────────────────────
+# Serve frontend static files (Railway production)
+# Must be AFTER all API/WS routes!
+# ──────────────────────────────────────────────
+STATIC_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "static")
+if os.path.isdir(STATIC_DIR):
+    print(f"📁 Serving frontend from {STATIC_DIR}")
+
+    @app.get("/")
+    async def serve_root():
+        return FileResponse(os.path.join(STATIC_DIR, "index.html"))
+
+    # Catch-all for Next.js client-side routes
+    @app.get("/{path:path}")
+    async def serve_frontend(path: str):
+        file_path = os.path.join(STATIC_DIR, path)
+        if os.path.isfile(file_path):
+            return FileResponse(file_path)
+        # Try with index.html for directory paths
+        index_path = os.path.join(file_path, "index.html")
+        if os.path.isfile(index_path):
+            return FileResponse(index_path)
+        # Fallback to root for SPA routing
+        return FileResponse(os.path.join(STATIC_DIR, "index.html"))
+
+
 if __name__ == "__main__":
     import uvicorn
     os.chdir(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     port = int(os.environ.get("PORT", 8000))
     uvicorn.run("main:app", host="0.0.0.0", port=port, reload=False)
-
